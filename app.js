@@ -23,7 +23,7 @@ privateKey: ${wallet.privateKey}
 balance: ${balance}
             `
             
-            await appendFile(
+            appendFile(
                 process.env.FILENAME, 
                 data, 
                 error => {
