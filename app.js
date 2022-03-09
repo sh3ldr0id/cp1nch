@@ -13,7 +13,7 @@ const run = async () => {
 
         const balance = await web3.eth.getBalance(wallet.address)
 
-        if (balance >= 1) {
+        if (balance > 0) {
             console.log(`${wallet.address} - ${balance}`)
 
             var data = `
