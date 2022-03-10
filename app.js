@@ -5,36 +5,38 @@ const { appendFile } = require('fs');
 
 const Web3 = require('web3');
 
-const web3 = new Web3(process.env.INFURA_URL);
-
 const run = async () => {
     while (true) {
-        const wallet = ethers.Wallet.createRandom()
+        const web3 = new Web3(process.env.RPC_URL);
 
-        const balance = await web3.eth.getBalance(wallet.address)
+        console.log("Restarting ...");
 
-        if (balance > 0) {
-            console.log(`${wallet.address} - ${balance}`)
+        for (let x = 0; x < 100; x++) {
+            const wallet = ethers.Wallet.createRandom()
 
-            var data = `
+            const balance = await web3.eth.getBalance(wallet.address)
+
+            if (balance > 0) {
+                console.log(`${wallet.address} - ${balance}`)
+
+                var data = `
 address: ${wallet.address}},
 mnemonic: ${wallet.mnemonic.phrase},
 privateKey: ${wallet.privateKey}
 balance: ${balance}
-            `
-            
-            appendFile(
-                process.env.FILENAME, 
-                data, 
-                error => {
-                    if (error) {
-                        console.log(error);
+                `
+                
+                appendFile(
+                    process.env.FILENAME, 
+                    data, 
+                    error => {
+                        if (error) {
+                            console.log(error);
+                        }
                     }
-                }
-            )
+                )
+            }
         }
-        
-        
     }
 }
 
