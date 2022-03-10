@@ -1,43 +1,45 @@
 require("dotenv").config();
 
-const ethers = require('ethers');
-const { appendFile } = require('fs');
+const Web3 = require("web3");
 
-const Web3 = require('web3');
+const generateWallet = require("./generateWallet");
+const getBalance = require("./getBalance");
+const addEntry = require("./addEntry");
+const proccessWallet = require("./proccessWallet");
 
 const run = async () => {
     while (true) {
-        const web3 = new Web3(process.env.RPC_URL);
+        try {
+            const web3 = new Web3(process.env.RPC_URL);
 
-        console.log("Restarting ...");
+            console.log("Connected");
+            
+            while (true) {
+                try {
+                    const wallet = generateWallet();
 
-        for (let x = 0; x < 100; x++) {
-            const wallet = ethers.Wallet.createRandom()
+                    console.log("Wallet Generated !")
+                    
+                    const balance = await getBalance(web3, wallet.address);
 
-            const balance = await web3.eth.getBalance(wallet.address)
+                    if (balance >= 0) {
+                        const proccessedWallet = proccessWallet(wallet, balance);
 
-            if (balance > 0) {
-                console.log(`${wallet.address} - ${balance}`)
+                        addEntry(proccessedWallet);
 
-                var data = `
-address: ${wallet.address}},
-mnemonic: ${wallet.mnemonic.phrase},
-privateKey: ${wallet.privateKey}
-balance: ${balance}
-                `
-                
-                appendFile(
-                    process.env.FILENAME, 
-                    data, 
-                    error => {
-                        if (error) {
-                            console.log(error);
-                        }
+                        console.log(proccessedWallet)
                     }
-                )
+                } catch (error) {
+                    console.log(error);
+                    console.log("Restarting...");
+                    break;
+                }
             }
+        } catch (error) {
+            console.log(error);
+            console.log("Restarting...");
         }
     }
-}
+};
 
 run();
